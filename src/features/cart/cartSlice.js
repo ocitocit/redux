@@ -10,16 +10,39 @@ const initialState = {
   isLoading: true,
 };
 
-// Creating a new slice of state for cart items using createSlice function
-// from redux toolkit by passing name of the slice and initial state object.
 const cartSlice = createSlice({
   name: "cart",
   initialState,
+  reducers: {
+    clearCart: (state) => {
+      state.cartItems = [];
+    },
+    removeItem: (state, actions) => {
+      const itemId = actions.payload;
+      state.cartItems = state.cartItems.filter((item) => item.id !== itemId);
+    },
+    increase: (state, { payload }) => {
+      const cartItem = state.cartItems.find((item) => item.id === payload.id);
+      cartItem.amount = cartItem.amount + 1;
+    },
+    decrease: (state, { payload }) => {
+      const cartItem = state.cartItems.find((item) => item.id === payload.id);
+      cartItem.amount = cartItem.amount - 1;
+    },
+    calculateTotals: (state) => {
+      let amount = 0;
+      let total = 0;
+      state.cartItems.forEach((item) => {
+        amount += item.amount;
+        total += item.amount * item.price;
+      });
+      state.amount = amount;
+      state.total = total;
+    },
+  },
 });
 
-// Exporting the reducer part of the slice so that it can be included in
-// the store in combination with other reducers.
 export default cartSlice.reducer;
-
-// console.log(cartSlice) -> This line is commented out, it logs the created slice
-// object to the console.
+export const { clearCart, removeItem, increase, decrease, calculateTotals } =
+  cartSlice.actions;
+// console.log(cartSlice);
