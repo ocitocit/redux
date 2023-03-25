@@ -1,14 +1,22 @@
 // Importing createSlice from "@reduxjs/toolkit" library
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import cartItems from "../../cartItems";
+
+const url = "https://course-api.com/react-useReducer-cart-project";
 
 // Declaring initialState object with some properties
 const initialState = {
-  cartItems: cartItems,
+  cartItems: [],
   amount: 5,
   total: 0,
   isLoading: true,
 };
+
+export const getCartItems = createAsyncThunk("cart/getCartItems", () => {
+  return fetch(url)
+    .then((res) => res.json())
+    .catch((er) => console.log(er));
+});
 
 const cartSlice = createSlice({
   name: "cart",
@@ -40,9 +48,21 @@ const cartSlice = createSlice({
       state.total = total;
     },
   },
+
+  extraReducers: {
+    [getCartItems.pending]: (state) => {
+      state.isLoading = true;
+    },
+    [getCartItems.fulfilled]: (state, action) => {
+      state.isLoading = false;
+      state.cartItems = action.payload;
+    },
+    [getCartItems.rejected]: (state) => {
+      state.isLoading = false;
+    },
+  },
 });
 
 export default cartSlice.reducer;
 export const { clearCart, removeItem, increase, decrease, calculateTotals } =
   cartSlice.actions;
-// console.log(cartSlice);
